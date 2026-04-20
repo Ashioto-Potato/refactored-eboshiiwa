@@ -1,0 +1,878 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --c1: #FF6B9D; --c2: #FFC107; --c3: #00D2D3; --c4: #A29BFE;
+    --c5: #FF7675; --c6: #55EFC4; --c7: #FD79A8; --c8: #FDCB6E;
+    --bg: #FFF9F0; --white: #ffffff;
+  }
+
+  body-like { display: block; }
+
+  #app {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ===== PASSWORD SCREEN ===== */
+  #pw-screen {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 600px; padding: 2rem;
+    background: linear-gradient(135deg, #FFE5F0 0%, #E8F4FD 50%, #F0FFF4 100%);
+  }
+
+  .pw-card {
+    background: white; border-radius: 28px; padding: 2.5rem 2rem;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.1); width: 100%; max-width: 380px;
+    text-align: center;
+  }
+
+  .pw-emoji { font-size: 52px; margin-bottom: 1rem; display: block; }
+
+  .pw-title {
+    font-family: 'Fredoka One', cursive; font-size: 28px;
+    background: linear-gradient(135deg, #FF6B9D, #A29BFE);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 0.4rem;
+  }
+
+  .pw-sub { font-size: 14px; color: #999; margin-bottom: 1.5rem; }
+
+  .pw-input {
+    width: 100%; padding: 14px 18px; border: 2.5px solid #F0E6FF;
+    border-radius: 14px; font-size: 18px; font-family: 'Nunito', sans-serif;
+    letter-spacing: 4px; text-align: center; outline: none; color: #333;
+    transition: border-color 0.2s;
+  }
+  .pw-input:focus { border-color: #A29BFE; }
+
+  .pw-btn {
+    width: 100%; margin-top: 1rem; padding: 14px;
+    background: linear-gradient(135deg, #FF6B9D, #A29BFE);
+    color: white; border: none; border-radius: 14px;
+    font-size: 16px; font-family: 'Nunito', sans-serif; font-weight: 700;
+    cursor: pointer; transition: transform 0.1s, opacity 0.2s;
+  }
+  .pw-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .pw-btn:active { transform: scale(0.98); }
+
+  .pw-error { color: #FF6B9D; font-size: 13px; margin-top: 0.6rem; min-height: 18px; }
+
+  .pw-change {
+    margin-top: 1rem; font-size: 12px; color: #bbb; cursor: pointer;
+    text-decoration: underline;
+  }
+
+  /* ===== MAIN APP ===== */
+  #main-app { display: none; }
+
+  .header {
+    background: white; padding: 1rem 1.5rem;
+    border-bottom: 3px solid #FFE5F0;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 10px; }
+
+  .header-logo {
+    font-family: 'Fredoka One', cursive; font-size: 26px;
+    background: linear-gradient(135deg, #FF6B9D, #A29BFE, #00D2D3);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  .header-emoji { font-size: 24px; }
+
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+
+  .lock-btn {
+    background: #FFF0F5; border: none; border-radius: 10px;
+    padding: 8px 12px; font-size: 13px; cursor: pointer; color: #FF6B9D;
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+  }
+
+  .add-btn {
+    background: linear-gradient(135deg, #FF6B9D, #A29BFE);
+    color: white; border: none; border-radius: 12px;
+    padding: 10px 18px; font-size: 15px; font-family: 'Fredoka One', cursive;
+    cursor: pointer; transition: transform 0.1s;
+  }
+  .add-btn:hover { transform: translateY(-1px); }
+  .add-btn:active { transform: scale(0.97); }
+
+  /* ===== STATS BAR ===== */
+  .stats-bar {
+    display: flex; gap: 10px; padding: 1rem 1.5rem; overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .stats-bar::-webkit-scrollbar { display: none; }
+
+  .stat-chip {
+    flex-shrink: 0; background: white; border-radius: 14px;
+    padding: 10px 16px; text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+
+  .stat-num { font-family: 'Fredoka One', cursive; font-size: 22px; }
+  .stat-label { font-size: 11px; color: #999; font-weight: 600; }
+
+  /* ===== CATEGORIES ===== */
+  .cat-scroll {
+    display: flex; gap: 8px; padding: 0 1.5rem 0.5rem;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .cat-scroll::-webkit-scrollbar { display: none; }
+
+  .cat-chip {
+    flex-shrink: 0; padding: 8px 16px; border-radius: 20px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    border: 2.5px solid transparent; transition: all 0.15s;
+    font-family: 'Nunito', sans-serif;
+  }
+  .cat-chip.active { border-color: rgba(0,0,0,0.15); box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
+
+  /* ===== TASK LIST ===== */
+  .tasks-container { padding: 0.5rem 1.5rem 6rem; }
+
+  .section-title {
+    font-family: 'Fredoka One', cursive; font-size: 16px;
+    color: #888; margin: 1rem 0 0.5rem;
+  }
+
+  .task-card {
+    background: white; border-radius: 18px; padding: 14px 16px;
+    margin-bottom: 10px; cursor: pointer;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border-left: 5px solid #ddd;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative; overflow: hidden;
+  }
+  .task-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+  .task-card:active { transform: scale(0.99); }
+  .task-card.done { opacity: 0.55; }
+  .task-card.done .task-title { text-decoration: line-through; }
+
+  .task-card::before {
+    content: ''; position: absolute; top: 0; right: 0;
+    width: 60px; height: 60px; border-radius: 50%;
+    opacity: 0.06; transform: translate(20px, -20px);
+  }
+
+  .task-top { display: flex; align-items: flex-start; gap: 10px; }
+
+  .check-btn {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2.5px solid currentColor; background: transparent;
+    cursor: pointer; flex-shrink: 0; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 13px; transition: all 0.2s; margin-top: 1px;
+  }
+  .check-btn.checked { color: white !important; }
+
+  .task-info { flex: 1; }
+  .task-title { font-weight: 700; font-size: 15px; color: #333; line-height: 1.3; }
+  .task-desc { font-size: 13px; color: #aaa; margin-top: 3px; }
+
+  .task-bottom {
+    display: flex; align-items: center; gap: 8px; margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .cat-badge {
+    font-size: 11px; font-weight: 700; padding: 3px 10px;
+    border-radius: 10px; font-family: 'Nunito', sans-serif;
+  }
+
+  .due-badge {
+    font-size: 11px; font-weight: 700; padding: 3px 10px;
+    border-radius: 10px; background: #FFF0F5; color: #FF6B9D;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .due-badge:hover { background: #FFE0EC; }
+  .due-badge.overdue { background: #FFEDED; color: #FF5252; }
+  .due-badge.today { background: #FFF3E0; color: #FF9800; }
+  .due-badge.soon { background: #F3E5F5; color: #9C27B0; }
+
+  .priority-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+    display: flex; align-items: flex-end; justify-content: center;
+    z-index: 999; opacity: 0; transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .modal-overlay.show { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: white; border-radius: 28px 28px 0 0;
+    padding: 1.5rem; width: 100%; max-width: 600px;
+    max-height: 90vh; overflow-y: auto;
+    transform: translateY(100px); transition: transform 0.25s ease;
+  }
+  .modal-overlay.show .modal { transform: translateY(0); }
+
+  .modal-handle {
+    width: 40px; height: 4px; background: #E0E0E0;
+    border-radius: 2px; margin: 0 auto 1.2rem;
+  }
+
+  .modal-title {
+    font-family: 'Fredoka One', cursive; font-size: 22px; margin-bottom: 1.2rem;
+    background: linear-gradient(135deg, #FF6B9D, #A29BFE);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  .form-group { margin-bottom: 1rem; }
+  .form-label { font-size: 13px; font-weight: 700; color: #888; margin-bottom: 6px; display: block; }
+
+  .form-input, .form-select, .form-textarea {
+    width: 100%; padding: 12px 14px; border: 2px solid #F0E6FF;
+    border-radius: 14px; font-size: 15px; font-family: 'Nunito', sans-serif;
+    color: #333; outline: none; transition: border-color 0.2s;
+    background: white;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #A29BFE; }
+  .form-textarea { resize: vertical; min-height: 70px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .color-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+  .color-dot {
+    width: 32px; height: 32px; border-radius: 50%;
+    cursor: pointer; border: 3px solid transparent;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .color-dot:hover { transform: scale(1.15); }
+  .color-dot.selected { border-color: #333; transform: scale(1.1); }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 1.5rem; }
+
+  .btn-cancel {
+    flex: 1; padding: 14px; border: 2px solid #F0E6FF;
+    background: white; border-radius: 14px; font-size: 15px;
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+    color: #aaa; cursor: pointer;
+  }
+
+  .btn-save {
+    flex: 2; padding: 14px;
+    background: linear-gradient(135deg, #FF6B9D, #A29BFE);
+    color: white; border: none; border-radius: 14px;
+    font-size: 15px; font-family: 'Nunito', sans-serif; font-weight: 700;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+  .btn-save:hover { opacity: 0.9; }
+
+  .btn-delete {
+    padding: 14px 20px; background: #FFF0F0;
+    color: #FF5252; border: 2px solid #FFD0D0; border-radius: 14px;
+    font-size: 15px; font-family: 'Nunito', sans-serif; font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ===== DUE DATE MODAL ===== */
+  .due-modal .modal-title { font-size: 18px; margin-bottom: 1rem; }
+
+  .date-presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; }
+
+  .preset-btn {
+    padding: 8px 16px; border-radius: 12px; border: 2px solid #F0E6FF;
+    background: white; font-size: 13px; font-family: 'Nunito', sans-serif;
+    font-weight: 700; cursor: pointer; color: #A29BFE; transition: all 0.15s;
+  }
+  .preset-btn:hover { background: #F3E5F5; border-color: #A29BFE; }
+
+  /* ===== PW CHANGE SCREEN ===== */
+  .pw-change-hint { font-size: 12px; color: #ccc; margin-top: 0.5rem; }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    text-align: center; padding: 3rem 1rem;
+  }
+  .empty-emoji { font-size: 56px; display: block; margin-bottom: 1rem; }
+  .empty-title { font-family: 'Fredoka One', cursive; font-size: 22px; color: #ccc; }
+  .empty-sub { font-size: 14px; color: #ddd; margin-top: 0.4rem; }
+
+  /* ===== FAB ===== */
+  .fab {
+    position: fixed; bottom: 24px; right: 24px;
+    width: 60px; height: 60px; border-radius: 50%;
+    background: linear-gradient(135deg, #FF6B9D, #A29BFE);
+    color: white; font-size: 28px; border: none; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(162,155,254,0.4);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s;
+    z-index: 50;
+  }
+  .fab:hover { transform: scale(1.1); }
+  .fab:active { transform: scale(0.95); }
+
+  .loading-screen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 600px; font-family: 'Fredoka One', cursive;
+    font-size: 20px; color: #ccc;
+  }
+</style>
+
+<div id="app">
+  <div id="loading-screen" class="loading-screen">🌈 読み込み中...</div>
+
+  <div id="pw-screen" style="display:none">
+    <div class="pw-card">
+      <span class="pw-emoji">🔐</span>
+      <div class="pw-title" id="pw-title-text">My Planner</div>
+      <div class="pw-sub" id="pw-sub-text">パスワードを入力してください</div>
+      <input type="password" class="pw-input" id="pw-input" placeholder="••••••••" maxlength="20" />
+      <div class="pw-error" id="pw-error"></div>
+      <button class="pw-btn" id="pw-submit-btn">入る ✨</button>
+      <div class="pw-change" id="pw-mode-toggle">パスワードを変更する</div>
+    </div>
+  </div>
+
+  <div id="main-app">
+    <div class="header">
+      <div class="header-left">
+        <span class="header-emoji">🌈</span>
+        <span class="header-logo">My Planner</span>
+      </div>
+      <div class="header-actions">
+        <button class="lock-btn" id="lock-btn">🔒 ロック</button>
+        <button class="add-btn" id="header-add-btn">+ 追加</button>
+      </div>
+    </div>
+
+    <div class="stats-bar" id="stats-bar"></div>
+
+    <div class="cat-scroll" id="cat-scroll"></div>
+
+    <div class="tasks-container" id="tasks-container"></div>
+
+    <button class="fab" id="fab-btn">+</button>
+  </div>
+</div>
+
+<!-- Task Edit Modal -->
+<div class="modal-overlay" id="task-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title-text">新しいタスク ✨</div>
+    <div class="form-group">
+      <label class="form-label">タスク名</label>
+      <input type="text" class="form-input" id="f-title" placeholder="なにをする？" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">メモ</label>
+      <textarea class="form-textarea" id="f-desc" placeholder="詳細メモ（任意）"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">カテゴリ</label>
+        <select class="form-select" id="f-cat"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">優先度</label>
+        <select class="form-select" id="f-priority">
+          <option value="high">🔴 高</option>
+          <option value="mid" selected>🟡 中</option>
+          <option value="low">🟢 低</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">期限</label>
+      <input type="date" class="form-input" id="f-due" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">カードカラー</label>
+      <div class="color-picker" id="color-picker"></div>
+    </div>
+    <div class="modal-actions" id="modal-actions">
+      <button class="btn-cancel" id="modal-cancel">キャンセル</button>
+      <button class="btn-save" id="modal-save">保存する 💾</button>
+    </div>
+  </div>
+</div>
+
+<!-- Due Date Quick Edit Modal -->
+<div class="modal-overlay due-modal" id="due-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📅 期限を変更する</div>
+    <div class="date-presets">
+      <button class="preset-btn" data-days="0">今日</button>
+      <button class="preset-btn" data-days="1">明日</button>
+      <button class="preset-btn" data-days="3">3日後</button>
+      <button class="preset-btn" data-days="7">来週</button>
+      <button class="preset-btn" data-days="14">2週間後</button>
+      <button class="preset-btn" data-days="30">1ヶ月後</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">日付を選ぶ</label>
+      <input type="date" class="form-input" id="due-date-input" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="due-cancel">キャンセル</button>
+      <button class="btn-save" id="due-save">変更する 📅</button>
+    </div>
+  </div>
+</div>
+
+<!-- PW Change Modal -->
+<div class="modal-overlay" id="pw-change-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔐 パスワード変更</div>
+    <div class="form-group">
+      <label class="form-label">現在のパスワード</label>
+      <input type="password" class="form-input" id="pw-old" placeholder="現在のパスワード" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">新しいパスワード</label>
+      <input type="password" class="form-input" id="pw-new" placeholder="新しいパスワード（4〜20文字）" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">新しいパスワード（確認）</label>
+      <input type="password" class="form-input" id="pw-new2" placeholder="もう一度入力" />
+    </div>
+    <div class="pw-error" id="pw-change-error"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="pw-change-cancel">キャンセル</button>
+      <button class="btn-save" id="pw-change-save">変更する 🔑</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const COLORS = [
+  '#FF6B9D','#FFC107','#00D2D3','#A29BFE',
+  '#FF7675','#55EFC4','#FDCB6E','#74B9FF',
+  '#E17055','#6C5CE7','#00B894','#E84393'
+];
+
+const CATEGORIES = [
+  { id:'all', name:'すべて', emoji:'🌈', bg:'#F3E5F5', color:'#9C27B0' },
+  { id:'life', name:'生活', emoji:'🏠', bg:'#E3F2FD', color:'#1976D2' },
+  { id:'health', name:'健康', emoji:'💪', bg:'#E8F5E9', color:'#388E3C' },
+  { id:'hobby', name:'趣味', emoji:'🎨', bg:'#FFF8E1', color:'#F9A825' },
+  { id:'shopping', name:'買い物', emoji:'🛍️', bg:'#FCE4EC', color:'#C2185B' },
+  { id:'study', name:'勉強', emoji:'📚', bg:'#F3E5F5', color:'#7B1FA2' },
+  { id:'social', name:'人付き合い', emoji:'👫', bg:'#E1F5FE', color:'#0288D1' },
+  { id:'travel', name:'旅行', emoji:'✈️', bg:'#E0F7FA', color:'#00838F' },
+  { id:'other', name:'その他', emoji:'⭐', bg:'#FFF3E0', color:'#E65100' },
+];
+
+const DEFAULT_PW = 'planner2025';
+
+let tasks = [];
+let selectedCat = 'all';
+let editingTaskId = null;
+let dueDateTaskId = null;
+let selectedColor = COLORS[0];
+let unlocked = false;
+
+async function loadData() {
+  try {
+    const r = await window.storage.get('planner_tasks');
+    if (r) tasks = JSON.parse(r.value);
+  } catch(e) { tasks = []; }
+}
+
+async function saveData() {
+  try { await window.storage.set('planner_tasks', JSON.stringify(tasks)); } catch(e) {}
+}
+
+async function getPassword() {
+  try {
+    const r = await window.storage.get('planner_pw');
+    return r ? r.value : DEFAULT_PW;
+  } catch(e) { return DEFAULT_PW; }
+}
+
+async function setPassword(pw) {
+  try { await window.storage.set('planner_pw', pw); } catch(e) {}
+}
+
+function dateStr(d) {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const t = new Date(d + 'T00:00:00');
+  const diff = Math.round((t - now) / 86400000);
+  if (diff < 0) return { label:`${-diff}日超過`, cls:'overdue' };
+  if (diff === 0) return { label:'今日！', cls:'today' };
+  if (diff === 1) return { label:'明日', cls:'soon' };
+  if (diff <= 7) return { label:`${diff}日後`, cls:'soon' };
+  const m = t.getMonth()+1, day = t.getDate();
+  return { label:`${m}/${day}`, cls:'' };
+}
+
+function getCat(id) { return CATEGORIES.find(c=>c.id===id) || CATEGORIES[8]; }
+
+function renderStats() {
+  const total = tasks.length;
+  const done = tasks.filter(t=>t.done).length;
+  const overdue = tasks.filter(t=>{
+    if(t.done||!t.due) return false;
+    const now = new Date(); now.setHours(0,0,0,0);
+    return new Date(t.due+'T00:00:00') < now;
+  }).length;
+  const today = tasks.filter(t=>{
+    if(t.done||!t.due) return false;
+    const now = new Date(); now.setHours(0,0,0,0);
+    const d = new Date(t.due+'T00:00:00');
+    return d.getTime() === now.getTime();
+  }).length;
+
+  document.getElementById('stats-bar').innerHTML = `
+    <div class="stat-chip"><div class="stat-num" style="color:#A29BFE">${total}</div><div class="stat-label">合計</div></div>
+    <div class="stat-chip"><div class="stat-num" style="color:#55EFC4">${done}</div><div class="stat-label">完了</div></div>
+    <div class="stat-chip"><div class="stat-num" style="color:#FF6B9D">${total-done}</div><div class="stat-label">残り</div></div>
+    <div class="stat-chip"><div class="stat-num" style="color:#FF9800">${today}</div><div class="stat-label">今日</div></div>
+    <div class="stat-chip"><div class="stat-num" style="color:#FF5252">${overdue}</div><div class="stat-label">期限超過</div></div>
+  `;
+}
+
+function renderCats() {
+  document.getElementById('cat-scroll').innerHTML = CATEGORIES.map(c=>`
+    <button class="cat-chip ${selectedCat===c.id?'active':''}"
+      style="background:${c.bg};color:${c.color}" onclick="selectCat('${c.id}')">
+      ${c.emoji} ${c.name}
+    </button>
+  `).join('');
+}
+
+function renderTasks() {
+  let filtered = selectedCat==='all' ? tasks : tasks.filter(t=>t.cat===selectedCat);
+  const active = filtered.filter(t=>!t.done);
+  const done = filtered.filter(t=>t.done);
+
+  const now = new Date(); now.setHours(0,0,0,0);
+  const sortScore = t => {
+    if(!t.due) return 9999;
+    const diff = Math.round((new Date(t.due+'T00:00:00') - now)/86400000);
+    return diff;
+  };
+  active.sort((a,b)=>sortScore(a)-sortScore(b));
+
+  const container = document.getElementById('tasks-container');
+  if(filtered.length===0) {
+    container.innerHTML = `<div class="empty-state">
+      <span class="empty-emoji">🌟</span>
+      <div class="empty-title">タスクがまだないよ！</div>
+      <div class="empty-sub">＋ボタンで追加してみよう</div>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+  if(active.length>0) {
+    html += `<div class="section-title">📋 やること（${active.length}）</div>`;
+    html += active.map(t=>taskCard(t)).join('');
+  }
+  if(done.length>0) {
+    html += `<div class="section-title">✅ 完了（${done.length}）</div>`;
+    html += done.map(t=>taskCard(t)).join('');
+  }
+  container.innerHTML = html;
+}
+
+function taskCard(t) {
+  const cat = getCat(t.cat);
+  const pColor = t.priority==='high'?'#FF5252':t.priority==='mid'?'#FF9800':'#4CAF50';
+  let dueHtml = '';
+  if(t.due) {
+    const di = dateStr(t.due);
+    dueHtml = `<span class="due-badge ${di.cls}" onclick="openDueModal(event,'${t.id}')">📅 ${di.label}</span>`;
+  } else {
+    dueHtml = `<span class="due-badge" onclick="openDueModal(event,'${t.id}')">📅 期限を設定</span>`;
+  }
+  return `
+    <div class="task-card ${t.done?'done':''}" style="border-left-color:${t.color||COLORS[0]}"
+      onclick="openEditTask('${t.id}')">
+      <div class="task-top">
+        <button class="check-btn ${t.done?'checked':''}"
+          style="color:${t.color||COLORS[0]}; ${t.done?'background:'+t.color+';border-color:'+t.color:''}"
+          onclick="toggleDone(event,'${t.id}')">
+          ${t.done?'✓':''}
+        </button>
+        <div class="task-info">
+          <div class="task-title">${escHtml(t.title)}</div>
+          ${t.desc?`<div class="task-desc">${escHtml(t.desc)}</div>`:''}
+        </div>
+        <div class="priority-dot" style="background:${pColor}; margin-top:6px"></div>
+      </div>
+      <div class="task-bottom">
+        <span class="cat-badge" style="background:${cat.bg};color:${cat.color}">${cat.emoji} ${cat.name}</span>
+        ${dueHtml}
+      </div>
+    </div>`;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function selectCat(id) {
+  selectedCat = id;
+  renderCats();
+  renderTasks();
+}
+
+function toggleDone(e, id) {
+  e.stopPropagation();
+  const t = tasks.find(t=>t.id===id);
+  if(t) { t.done = !t.done; saveData(); renderStats(); renderTasks(); }
+}
+
+function openAddTask() {
+  editingTaskId = null;
+  document.getElementById('modal-title-text').textContent = '新しいタスク ✨';
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-cat').value = selectedCat!=='all'?selectedCat:'life';
+  document.getElementById('f-priority').value = 'mid';
+  document.getElementById('f-due').value = '';
+  selectedColor = COLORS[0];
+  renderColorPicker();
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="btn-cancel" id="modal-cancel">キャンセル</button>
+    <button class="btn-save" id="modal-save">保存する 💾</button>
+  `;
+  document.getElementById('modal-cancel').onclick = closeModal;
+  document.getElementById('modal-save').onclick = saveTask;
+  showModal('task-modal');
+}
+
+function openEditTask(id) {
+  const t = tasks.find(t=>t.id===id);
+  if(!t) return;
+  editingTaskId = id;
+  document.getElementById('modal-title-text').textContent = 'タスクを編集 ✏️';
+  document.getElementById('f-title').value = t.title;
+  document.getElementById('f-desc').value = t.desc||'';
+  document.getElementById('f-cat').value = t.cat;
+  document.getElementById('f-priority').value = t.priority||'mid';
+  document.getElementById('f-due').value = t.due||'';
+  selectedColor = t.color||COLORS[0];
+  renderColorPicker();
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="btn-delete" id="modal-delete">削除</button>
+    <button class="btn-cancel" id="modal-cancel">キャンセル</button>
+    <button class="btn-save" id="modal-save">保存する 💾</button>
+  `;
+  document.getElementById('modal-delete').onclick = deleteTask;
+  document.getElementById('modal-cancel').onclick = closeModal;
+  document.getElementById('modal-save').onclick = saveTask;
+  showModal('task-modal');
+}
+
+function saveTask() {
+  const title = document.getElementById('f-title').value.trim();
+  if(!title) { document.getElementById('f-title').style.borderColor='#FF6B9D'; return; }
+  document.getElementById('f-title').style.borderColor='';
+  const task = {
+    id: editingTaskId || Date.now().toString(36),
+    title,
+    desc: document.getElementById('f-desc').value.trim(),
+    cat: document.getElementById('f-cat').value,
+    priority: document.getElementById('f-priority').value,
+    due: document.getElementById('f-due').value || null,
+    color: selectedColor,
+    done: false,
+    created: Date.now()
+  };
+  if(editingTaskId) {
+    const idx = tasks.findIndex(t=>t.id===editingTaskId);
+    const wasDone = tasks[idx].done;
+    task.done = wasDone;
+    tasks[idx] = task;
+  } else {
+    tasks.unshift(task);
+  }
+  saveData();
+  closeModal();
+  renderStats();
+  renderTasks();
+}
+
+function deleteTask() {
+  if(!editingTaskId) return;
+  tasks = tasks.filter(t=>t.id!==editingTaskId);
+  saveData(); closeModal(); renderStats(); renderTasks();
+}
+
+function openDueModal(e, id) {
+  e.stopPropagation();
+  dueDateTaskId = id;
+  const t = tasks.find(t=>t.id===id);
+  document.getElementById('due-date-input').value = t?.due || '';
+  showModal('due-modal');
+}
+
+function renderColorPicker() {
+  document.getElementById('color-picker').innerHTML = COLORS.map(c=>`
+    <div class="color-dot ${selectedColor===c?'selected':''}"
+      style="background:${c}" onclick="selectColor('${c}')"></div>
+  `).join('');
+}
+
+function selectColor(c) { selectedColor = c; renderColorPicker(); }
+
+function showModal(id) {
+  document.getElementById(id).classList.add('show');
+}
+
+function closeModal() {
+  document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('show'));
+}
+
+function populateCatSelect() {
+  const cats = CATEGORIES.filter(c=>c.id!=='all');
+  document.getElementById('f-cat').innerHTML = cats.map(c=>`
+    <option value="${c.id}">${c.emoji} ${c.name}</option>
+  `).join('');
+}
+
+// PW Logic
+let pwMode = 'enter'; // 'enter' | 'set'
+
+async function initPwScreen() {
+  const pw = await getPassword();
+  if(pw === DEFAULT_PW) {
+    pwMode = 'set';
+    document.getElementById('pw-title-text').textContent = '🌈 My Planner';
+    document.getElementById('pw-sub-text').textContent = '最初にパスワードを設定してください';
+    document.getElementById('pw-submit-btn').textContent = 'パスワードを設定する 🔑';
+    document.getElementById('pw-mode-toggle').style.display = 'none';
+  } else {
+    pwMode = 'enter';
+    document.getElementById('pw-title-text').textContent = '🌈 My Planner';
+    document.getElementById('pw-sub-text').textContent = 'パスワードを入力してください';
+    document.getElementById('pw-submit-btn').textContent = '入る ✨';
+    document.getElementById('pw-mode-toggle').style.display = 'block';
+  }
+}
+
+document.getElementById('pw-submit-btn').addEventListener('click', async () => {
+  const val = document.getElementById('pw-input').value;
+  const err = document.getElementById('pw-error');
+  if(pwMode === 'set') {
+    if(val.length < 4) { err.textContent = '4文字以上で設定してください'; return; }
+    await setPassword(val);
+    err.textContent = '';
+    document.getElementById('pw-input').value = '';
+    unlock();
+  } else {
+    const pw = await getPassword();
+    if(val === pw) { err.textContent = ''; document.getElementById('pw-input').value = ''; unlock(); }
+    else { err.textContent = '❌ パスワードが違います'; document.getElementById('pw-input').value = ''; }
+  }
+});
+
+document.getElementById('pw-input').addEventListener('keydown', e => {
+  if(e.key==='Enter') document.getElementById('pw-submit-btn').click();
+});
+
+document.getElementById('pw-mode-toggle').addEventListener('click', () => {
+  showModal('pw-change-modal');
+});
+
+document.getElementById('pw-change-cancel').addEventListener('click', closeModal);
+
+document.getElementById('pw-change-save').addEventListener('click', async () => {
+  const old = document.getElementById('pw-old').value;
+  const n1 = document.getElementById('pw-new').value;
+  const n2 = document.getElementById('pw-new2').value;
+  const err = document.getElementById('pw-change-error');
+  const pw = await getPassword();
+  if(old !== pw) { err.textContent = '❌ 現在のパスワードが違います'; return; }
+  if(n1.length < 4) { err.textContent = '4文字以上で設定してください'; return; }
+  if(n1 !== n2) { err.textContent = '❌ 新しいパスワードが一致しません'; return; }
+  await setPassword(n1);
+  err.textContent = '';
+  document.getElementById('pw-old').value = '';
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-new2').value = '';
+  closeModal();
+  showToast('パスワードを変更しました！🔑');
+});
+
+function unlock() {
+  unlocked = true;
+  document.getElementById('pw-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'block';
+  renderStats();
+  renderCats();
+  renderTasks();
+}
+
+document.getElementById('lock-btn').addEventListener('click', () => {
+  unlocked = false;
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('pw-screen').style.display = 'flex';
+  initPwScreen();
+});
+
+document.getElementById('header-add-btn').addEventListener('click', openAddTask);
+document.getElementById('fab-btn').addEventListener('click', openAddTask);
+
+document.getElementById('modal-cancel').addEventListener('click', closeModal);
+document.getElementById('modal-save').addEventListener('click', saveTask);
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if(e.target === overlay) closeModal();
+  });
+});
+
+document.getElementById('due-cancel').addEventListener('click', closeModal);
+document.getElementById('due-save').addEventListener('click', () => {
+  const val = document.getElementById('due-date-input').value;
+  const t = tasks.find(t=>t.id===dueDateTaskId);
+  if(t) { t.due = val||null; saveData(); renderStats(); renderTasks(); }
+  closeModal();
+});
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const d = new Date();
+    d.setDate(d.getDate() + parseInt(btn.dataset.days));
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    document.getElementById('due-date-input').value = `${y}-${m}-${day}`;
+  });
+});
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:100px;left:50%;transform:translateX(-50%);
+    background:#333;color:white;padding:10px 20px;border-radius:20px;font-size:14px;
+    font-family:'Nunito',sans-serif;font-weight:700;z-index:9999;
+    animation:fadeInOut 2.5s forwards;`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 2500);
+}
+
+const style = document.createElement('style');
+style.textContent = `@keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(10px)}20%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0}}`;
+document.head.appendChild(style);
+
+// Init
+async function init() {
+  await loadData();
+  populateCatSelect();
+  document.getElementById('loading-screen').style.display = 'none';
+  await initPwScreen();
+  document.getElementById('pw-screen').style.display = 'flex';
+}
+
+init();
+</script>
